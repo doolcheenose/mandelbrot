@@ -33,6 +33,7 @@ def iterate(numIterations):
 class M_Window(pg.window.Window):
     def __init__(self, W, H, precision):
         super(M_Window, self).__init__(W, H)
+        self.batch = pg.graphics.Batch()
         self.W = W
         self.H = H
         self.THRESHOLD = 2
@@ -59,6 +60,9 @@ class M_Window(pg.window.Window):
                 self.i = self.i + 1
             print('calculations took {0} seconds'.format(time.time() - start))
 
+    def temp_update(self):
+
+
 
     def update_frame(self, x, y):
         start = time.time()
@@ -78,13 +82,15 @@ class M_Window(pg.window.Window):
     route. It seems as though i should be able to accomplish this without
     directly accessing the openGL code, and just use pyglet. We will see...
     """
-    def on_draw(self):
-
-        start = time.time()
-        glClear(GL_COLOR_BUFFER_BIT)
-        glDrawPixels(2 * self.W, 2 * self.H, GL_RGBA, GL_FLOAT, (GLfloat * len(self.color_pixels))(*self.color_pixels))
-        glutSwapBuffers()
-        print('on_draw took {0} seconds'.format(time.time() - start))
+    # def on_draw(self):
+    #
+    #     start = time.time()
+    #     glClear(GL_COLOR_BUFFER_BIT)
+    #     glDrawPixels(2 * self.W, 2 * self.H, GL_RGBA, GL_FLOAT, (GLfloat * len(self.color_pixels))(*self.color_pixels))
+    #     glutSwapBuffers()
+    #     print('on_draw took {0} seconds'.format(time.time() - start))
+    def on_draw(self): # temporary test
+        self.batch.draw()
 
 
 if __name__ == '__main__':
