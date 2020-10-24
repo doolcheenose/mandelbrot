@@ -18,10 +18,9 @@ class MandelViewer:
         self.imags = np.linspace(0 + 2.0j, 0 + -2.0j, H)
         self.region = self.reals[:, np.newaxis] + self.imags
         self.MAX_IT = 64
-        self.MAX_PRECISION = 64 * 8
         # color stuff, basically color dict maps each 0 < i <= MAX_IT to int32 val
         self.cmap = mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=1, vmax=self.MAX_IT), cmap=mpl.cm.jet)
-        self.color_dict = [self.rgba_to_int32(self.cmap.to_rgba(j)) for j in range(self.MAX_IT)]
+        self.color_dict = [self.rgba_to_int32(self.cmap.to_rgba(j+1)) for j in range(self.MAX_IT)]
         self.pixels = (self.color_dict[self.MAX_IT-1]) * (np.ones(W * H).reshape(W, H))
         pygame.font.init()
         self.font = pygame.font.Font('/Users/iandulchinos/Desktop/mandelbrot/mandelbrot/PressStart2P.ttf', 11)
@@ -34,11 +33,12 @@ class MandelViewer:
     # this is where the math happens
     def update_pixels(self):
         z = self.region.copy()
+        self.pixels = (self.color_dict[self.MAX_IT-1]) * (np.ones(self.W * self.H).reshape(self.W, self.H))
         for i in range(self.MAX_IT):
             magsqr = z.imag*z.imag + z.real*z.real
-            self.z = np.where(magsqr > THRESHOLD,
+            z = np.where(magsqr > THRESHOLD,
                               z,
-                              z ** 2 + self.region)
+                              z * z + self.region)
             self.pixels = np.where((magsqr > THRESHOLD)
                                         & (self.pixels == self.color_dict[self.MAX_IT-1]),
                                    self.color_dict[i],
@@ -80,14 +80,14 @@ class MandelViewer:
                     self.zoom(*pygame.mouse.get_pos(), scale=(0.1 * event.y))
                 elif event.type == pygame.KEYDOWN and event.mod == KMOD_NONE:
                     if event.key == pygame.K_UP:
-                        self.MAX_IT = self.MAX_IT + 64 if self.MAX_IT < self.MAX_PRECISION else self.MAX_PRECISION
-                        self.color_dict = [self.rgba_to_int32(self.cmap.to_rgba(j)) for j in range(self.MAX_IT)]
-                        self.i = 0
+                        self.MAX_IT = self.MAX_IT + 64
+                        self.cmap = mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=1, vmax=self.MAX_IT), cmap=mpl.cm.jet)
+                        self.color_dict = [self.rgba_to_int32(self.cmap.to_rgba(j+1)) for j in range(self.MAX_IT)]
                         print(self.MAX_IT)
                     elif event.key == pygame.K_DOWN:
                         self.MAX_IT = self.MAX_IT - 64 if self.MAX_IT > 0 else 0
-                        self.color_dict = [self.rgba_to_int32(self.cmap.to_rgba(j)) for j in range(self.MAX_IT)]
-                        self.i = 0
+                        self.cmap = mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=1, vmax=self.MAX_IT), cmap=mpl.cm.jet)
+                        self.color_dict = [self.rgba_to_int32(self.cmap.to_rgba(j+1)) for j in range(self.MAX_IT)]
                         print(self.MAX_IT)
 
 if __name__ == '__main__':
