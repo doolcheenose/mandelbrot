@@ -1,4 +1,5 @@
 import numpy as np
+import numexpr as ne
 import pygame
 from pygame.locals import * # for mouse stuff
 import time
@@ -39,11 +40,14 @@ class MandelViewer:
     # this is where the math happens
     def update_pixels(self):
         z = np.zeros(self.region.shape, np.complex64)
+        c = self.region.copy()
         self.pixels = (self.color_dict[(self.MAX_IT-1) % 64]) * (np.ones(self.W * self.H).reshape(self.W, self.H))
         for i in range(self.MAX_IT):
-            notdone = np.less(z.real*z.real + z.imag*z.imag, 4.0)
+            #notdone = np.less(z.real*z.real + z.imag*z.imag, 4.0)
+            notdone = ne.evaluate('z.real * z.real + z.imag + z.imag < 4.0')
             self.pixels[notdone] = self.color_dict[i % 64]
-            z[notdone] = z[notdone] ** 2 + self.region[notdone]
+            #z[notdone] = z[notdone] ** 2 + c[notdone]
+            z = ne.evaluate('where(notdone, z**2 + c, z)')
             #z = np.where(magsqr > THRESHOLD,
             #                  z,
             #                  z * z + self.region)
