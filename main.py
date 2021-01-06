@@ -38,17 +38,19 @@ class MandelViewer:
 
     # this is where the math happens
     def update_pixels(self):
-        z = self.region.copy()
+        z = np.zeros(self.region.shape, np.complex64)
         self.pixels = (self.color_dict[(self.MAX_IT-1) % 64]) * (np.ones(self.W * self.H).reshape(self.W, self.H))
         for i in range(self.MAX_IT):
-            magsqr = z.imag*z.imag + z.real*z.real
-            z = np.where(magsqr > THRESHOLD,
-                              z,
-                              z * z + self.region)
-            self.pixels = np.where((magsqr > THRESHOLD)
-                                        & (self.pixels == self.color_dict[(self.MAX_IT-1) % 64]),
-                                   self.color_dict[i % 64],
-                                   self.pixels)
+            notdone = np.less(z.real*z.real + z.imag*z.imag, 4.0)
+            self.pixels[notdone] = self.color_dict[i % 64]
+            z[notdone] = z[notdone] ** 2 + self.region[notdone]
+            #z = np.where(magsqr > THRESHOLD,
+            #                  z,
+            #                  z * z + self.region)
+            #self.pixels = np.where((magsqr > THRESHOLD)
+            #                            & (self.pixels == self.color_dict[(self.MAX_IT-1) % 64]),
+            #                       self.color_dict[i % 64],
+            #                       self.pixels)
 
 
 
